@@ -3,7 +3,7 @@
 source "$(dirname "$0")/ft-util/ft_util_inc_var"
 
 APP_NAME="futur-tech-zabbix-virtualmin"
-REQUIRED_PKG_ARR=( "at" )
+REQUIRED_PKG_ARR=( "at" "jq" )
 
 ZBX_CONF_AGENT_D="/etc/zabbix/zabbix_agentd.conf.d"
 BIN_DIR="/usr/local/bin/${APP_NAME}"
@@ -39,6 +39,7 @@ $S_LOG -d $S_NAME -d "$SUDOERS_ETC" "==============================="
 echo "Defaults:zabbix !requiretty" | sudo EDITOR='tee' visudo --file=$SUDOERS_ETC &>/dev/null
 echo "zabbix ALL=(ALL) NOPASSWD:${SRC_DIR}/deploy-update.sh" | sudo EDITOR='tee -a' visudo --file=$SUDOERS_ETC &>/dev/null
 echo "zabbix ALL=(ALL) NOPASSWD:${BIN_DIR}/bkp-discovery.sh" | sudo EDITOR='tee -a' visudo --file=$SUDOERS_ETC &>/dev/null
+echo "zabbix ALL=(ALL) NOPASSWD:${BIN_DIR}/bkp-last.sh" | sudo EDITOR='tee -a' visudo --file=$SUDOERS_ETC &>/dev/null
 
 cat $SUDOERS_ETC | $S_LOG -d "$S_NAME" -d "$SUDOERS_ETC" -i 
 
