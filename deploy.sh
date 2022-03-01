@@ -40,7 +40,7 @@ echo "Defaults:zabbix !requiretty" | sudo EDITOR='tee' visudo --file=$SUDOERS_ET
 echo "zabbix ALL=(ALL) NOPASSWD:${SRC_DIR}/deploy-update.sh" | sudo EDITOR='tee -a' visudo --file=$SUDOERS_ETC &>/dev/null
 echo "zabbix ALL=(ALL) NOPASSWD:${BIN_DIR}/bkp-discovery.sh" | sudo EDITOR='tee -a' visudo --file=$SUDOERS_ETC &>/dev/null
 echo "zabbix ALL=(ALL) NOPASSWD:${BIN_DIR}/bkp-last.sh *" | sudo EDITOR='tee -a' visudo --file=$SUDOERS_ETC &>/dev/null
-echo "zabbix ALL=(ALL) NOPASSWD:${BIN_DIR}/domains-discovery.sh" | sudo EDITOR='tee -a' visudo --file=$SUDOERS_ETC &>/dev/null
+echo "zabbix ALL=(ALL) NOPASSWD:${BIN_DIR}/domain-discovery.sh" | sudo EDITOR='tee -a' visudo --file=$SUDOERS_ETC &>/dev/null
 echo "zabbix ALL=(ALL) NOPASSWD:${BIN_DIR}/domain-check.sh *" | sudo EDITOR='tee -a' visudo --file=$SUDOERS_ETC &>/dev/null
 echo "zabbix ALL=(ALL) NOPASSWD:${BIN_DIR}/domain-info.sh *" | sudo EDITOR='tee -a' visudo --file=$SUDOERS_ETC &>/dev/null
 
