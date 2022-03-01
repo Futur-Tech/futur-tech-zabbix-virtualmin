@@ -1,6 +1,8 @@
 #!/usr/bin/env bash
 
-virtualmin list-scheduled-backups --multiline  \
+[ -z "$1" ] && exit # Exit if missing Backup ID
+
+virtualmin list-domains --name-only --enabled \
     | sed -E 's|^[^ ]+|}},{ "INDEX":"\0", "DETAILS": {|g'   `# Add INDEX key and }},{` \
     | sed -E 's|^[ ]{4}(.+): (.+)$|"\1" : "\2",|g'          `# Put key and value with " "` \
     | tr '\n' ' '                                           `# Remove all line returns` \
