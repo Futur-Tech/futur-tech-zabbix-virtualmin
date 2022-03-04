@@ -1,4 +1,4 @@
-# Zabbix Postfix Virtualmin
+# Zabbix Monitoring Virtualmin
 Zabbix template for Virtualmin
 
 Works for Zabbix 5.x Active Agent
