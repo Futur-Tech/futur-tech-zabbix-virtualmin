@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <zabbix_export>
     <version>5.0</version>
-    <date>2022-05-03T11:18:27Z</date>
+    <date>2023-04-02T09:54:53Z</date>
     <groups>
         <group>
             <name>Templates/Futur-Tech/Applications</name>
@@ -52,7 +52,7 @@
                             <trigger_prototypes>
                                 <trigger_prototype>
                                     <expression>{last()}&gt;{$VIRTUALMIN.BACKUP.AGE.ERROR:&quot;{{#INCR}.regsub(\&quot;Yes\&quot;, \&quot;incremental\&quot;)}{{#INCR}.regsub(\&quot;No\&quot;, \&quot;full\&quot;)}&quot;}</expression>
-                                    <name>No Virtualmin Backup of {#DN}[{#FEAT}] {{#INCR}.regsub(&quot;Yes&quot;, &quot;incremental&quot;)}{{#INCR}.regsub(&quot;No&quot;, &quot;full&quot;)} for more than {$VIRTUALMIN.BACKUP.AGE.ERROR}</name>
+                                    <name>No Virtualmin Backup of {#DN}[{#FEAT}] {{#INCR}.regsub(&quot;Yes&quot;, &quot;incremental&quot;)}{{#INCR}.regsub(&quot;No&quot;, &quot;full&quot;)} for more than {$VIRTUALMIN.BACKUP.AGE.ERROR:&quot;{{#INCR}.regsub(&quot;Yes&quot;, &quot;incremental&quot;)}{{#INCR}.regsub(&quot;No&quot;, &quot;full&quot;)}&quot;}</name>
                                     <opdata>Last backup age: {ITEM.LASTVALUE1}</opdata>
                                     <priority>HIGH</priority>
                                 </trigger_prototype>
@@ -104,8 +104,12 @@
                                 <step>
                                     <type>JAVASCRIPT</type>
                                     <params>var split = value.split(' ');
-MONTHS_LIST = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
-month_index = ('0' + (MONTHS_LIST.indexOf(split[1]) + 1)).slice(-2);
+if (split[1].length === 3) {
+    MONTHS_LIST = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
+    month_index = ('0' + (MONTHS_LIST.indexOf(split[1]) + 1)).slice(-2);
+} else {
+    month_index = split[1]
+}
 ISOdate = split[2] + '-' + month_index + '-' + split[0] + 'T' + split[3];
 var ts = new Date(ISOdate).valueOf() / 1000;
 tz = new Date().getTimezoneOffset() * 60;
@@ -288,6 +292,19 @@ https://forum.virtualmin.com/t/switching-from-plain-text-to-hashed-passwords-on-
                             <master_item>
                                 <key>virtualmin.domain.info[{#DN}]</key>
                             </master_item>
+                            <trigger_prototypes>
+                                <trigger_prototype>
+                                    <expression>{change()}=1&#13;
+and {strlen(#2)}&gt;0&#13;
+and {strlen()}&gt;0</expression>
+                                    <name>Virtualmin domain {#DN} PHP version was changed</name>
+                                    <opdata>Current version: PHP {ITEM.VALUE2}</opdata>
+                                    <priority>WARNING</priority>
+                                    <description>If this is not expected, it could be due to a PHP package update.&#13;
+This trigger will close automatically in 24h.</description>
+                                    <manual_close>YES</manual_close>
+                                </trigger_prototype>
+                            </trigger_prototypes>
                         </item_prototype>
                         <item_prototype>
                             <name>{#DN} configuration: SSL cert expiry</name>
