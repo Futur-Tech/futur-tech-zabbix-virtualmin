@@ -1,6 +1,6 @@
 zabbix_export:
   version: '6.0'
-  date: '2023-08-03T16:04:33Z'
+  date: '2023-08-03T19:04:12Z'
   groups:
     - uuid: 7f27dc73981940769811e7fae4a26772
       name: Templates/Futur-Tech/Applications
@@ -8,6 +8,10 @@ zabbix_export:
     - uuid: a66de4b365c44b5eb1cd77a9fc6e62d1
       template: 'Futur-Tech App Virtualmin'
       name: 'Futur-Tech App Virtualmin'
+      description: |
+        https://github.com/Futur-Tech/futur-tech-zabbix-virtualmin
+        
+        "Apache by Zabbix agent" need to be updated manually to use Zabbix agent active  items only.
       templates:
         - name: 'Apache by Zabbix agent'
       groups:
