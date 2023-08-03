@@ -1,0 +1,291 @@
+zabbix_export:
+  version: '6.0'
+  date: '2023-08-03T16:04:33Z'
+  groups:
+    - uuid: 7f27dc73981940769811e7fae4a26772
+      name: Templates/Futur-Tech/Applications
+  templates:
+    - uuid: a66de4b365c44b5eb1cd77a9fc6e62d1
+      template: 'Futur-Tech App Virtualmin'
+      name: 'Futur-Tech App Virtualmin'
+      templates:
+        - name: 'Apache by Zabbix agent'
+      groups:
+        - name: Templates/Futur-Tech/Applications
+      discovery_rules:
+        - uuid: ac2431f58b9842c89e7d813a614f12e9
+          name: 'Scheduled backups Discovery'
+          type: ZABBIX_ACTIVE
+          key: virtualmin.bkp.discovery
+          delay: 8h
+          item_prototypes:
+            - uuid: 8f41ec8ecd3f43748e2150171c81ff01
+              name: '{#DN}[{#FEAT}] {{#INCR}.regsub("Yes", "incremental")}{{#INCR}.regsub("No", "full")} backup age'
+              type: CALCULATED
+              key: 'virtualmin.bkp.last.age[{#ID}]'
+              delay: 15m
+              units: uptime
+              params: 'now()-last(//virtualmin.bkp.last.ended[{#ID}])'
+              tags:
+                - tag: Application
+                  value: 'Virtualmin Backups'
+                - tag: Application
+                  value: 'Virtualmin Backups Dashboard'
+              trigger_prototypes:
+                - uuid: 03d01c6c06cd4bd98daf16148232de8a
+                  expression: 'last(/Futur-Tech App Virtualmin/virtualmin.bkp.last.age[{#ID}])>{$VIRTUALMIN.BACKUP.AGE.ERROR:"{{#INCR}.regsub(\"Yes\", \"incremental\")}{{#INCR}.regsub(\"No\", \"full\")}"}'
+                  name: 'No Virtualmin Backup of {#DN}[{#FEAT}] {{#INCR}.regsub("Yes", "incremental")}{{#INCR}.regsub("No", "full")} for more than {$VIRTUALMIN.BACKUP.AGE.ERROR:"{{#INCR}.regsub("Yes", "incremental")}{{#INCR}.regsub("No", "full")}"}'
+                  opdata: 'Last backup age: {ITEM.LASTVALUE1}'
+                  priority: HIGH
+            - uuid: a6cf2aceb73a4ed6b04cfd1d02db9f58
+              name: '{#DN}[{#FEAT}] {{#INCR}.regsub("Yes", "incremental")}{{#INCR}.regsub("No", "full")} backup domains'
+              type: DEPENDENT
+              key: 'virtualmin.bkp.last.domains[{#ID}]'
+              delay: '0'
+              trends: '0'
+              value_type: TEXT
+              preprocessing:
+                - type: JSONPATH
+                  parameters:
+                    - '$.[''DETAILS''].[''Domains'']'
+              master_item:
+                key: 'virtualmin.bkp.last[{#ID}]'
+              tags:
+                - tag: Application
+                  value: 'Virtualmin Backups'
+            - uuid: 4d8568e09dce4856a677a3a78494ba89
+              name: '{#DN}[{#FEAT}] {{#INCR}.regsub("Yes", "incremental")}{{#INCR}.regsub("No", "full")} backup date'
+              type: DEPENDENT
+              key: 'virtualmin.bkp.last.ended[{#ID}]'
+              delay: '0'
+              units: unixtime
+              preprocessing:
+                - type: JSONPATH
+                  parameters:
+                    - '$.[''DETAILS''].[''Ended'']'
+                - type: STR_REPLACE
+                  parameters:
+                    - /
+                    - ' '
+                - type: JAVASCRIPT
+                  parameters:
+                    - |
+                      var split = value.split(' ');
+                      if (split[1].length === 3) {
+                          MONTHS_LIST = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
+                          month_index = ('0' + (MONTHS_LIST.indexOf(split[1]) + 1)).slice(-2);
+                      } else {
+                          month_index = split[1]
+                      }
+                      ISOdate = split[2] + '-' + month_index + '-' + split[0] + 'T' + split[3];
+                      var ts = new Date(ISOdate).valueOf() / 1000;
+                      tz = new Date().getTimezoneOffset() * 60;
+                      return ts + tz;
+              master_item:
+                key: 'virtualmin.bkp.last[{#ID}]'
+              tags:
+                - tag: Application
+                  value: 'Virtualmin Backups'
+            - uuid: 579a5a81d72740e3ad98e96c418cd14b
+              name: '{#DN}[{#FEAT}] {{#INCR}.regsub("Yes", "incremental")}{{#INCR}.regsub("No", "full")} backup status'
+              type: DEPENDENT
+              key: 'virtualmin.bkp.last.final_status[{#ID}]'
+              delay: '0'
+              trends: '0'
+              value_type: TEXT
+              preprocessing:
+                - type: JSONPATH
+                  parameters:
+                    - '$.[''DETAILS''].[''Final status'']'
+              master_item:
+                key: 'virtualmin.bkp.last[{#ID}]'
+              tags:
+                - tag: Application
+                  value: 'Virtualmin Backups'
+              trigger_prototypes:
+                - uuid: 67974d4fb4264e5b8392a8e48f300a96
+                  expression: |
+                    last(/Futur-Tech App Virtualmin/virtualmin.bkp.last.final_status[{#ID}])<>"OK"
+                    and now()>0
+                  name: 'Failed Virtualmin Backup of {#DN}[{#FEAT}] {{#INCR}.regsub("Yes", "incremental")}{{#INCR}.regsub("No", "full")}'
+                  opdata: 'Failed backup age: {ITEM.LASTVALUE2}'
+                  priority: AVERAGE
+            - uuid: 59a5d5703bda4af8a00b9fc1f7d06bff
+              name: '{#DN}[{#FEAT}] {{#INCR}.regsub("Yes", "incremental")}{{#INCR}.regsub("No", "full")} backup size'
+              type: DEPENDENT
+              key: 'virtualmin.bkp.last.size[{#ID}]'
+              delay: '0'
+              units: B
+              preprocessing:
+                - type: JSONPATH
+                  parameters:
+                    - '$.[''DETAILS''].[''Final size'']'
+              master_item:
+                key: 'virtualmin.bkp.last[{#ID}]'
+              tags:
+                - tag: Application
+                  value: 'Virtualmin Backups'
+            - uuid: de2868c91b81423d8e1bb11293e841f9
+              name: '{#DN}[{#FEAT}] {{#INCR}.regsub("Yes", "incremental")}{{#INCR}.regsub("No", "full")} backup'
+              type: ZABBIX_ACTIVE
+              key: 'virtualmin.bkp.last[{#ID}]'
+              delay: 15m
+              trends: '0'
+              value_type: TEXT
+              preprocessing:
+                - type: DISCARD_UNCHANGED_HEARTBEAT
+                  parameters:
+                    - 1d
+              tags:
+                - tag: Application
+                  value: 'Virtualmin Backups'
+          lld_macro_paths:
+            - lld_macro: '{#DN}'
+              path: '$.[''DETAILS''].[''Domains'']'
+            - lld_macro: '{#FEAT}'
+              path: '$.[''DETAILS''].[''Features'']'
+            - lld_macro: '{#ID}'
+              path: '$.[''INDEX'']'
+            - lld_macro: '{#INCR}'
+              path: '$.[''DETAILS''].[''Incremental'']'
+        - uuid: ca3f7d76b8da4be8b3085b0448e39f5b
+          name: 'Enabled domains Discovery'
+          type: ZABBIX_ACTIVE
+          key: virtualmin.domain.discovery
+          delay: 8h
+          item_prototypes:
+            - uuid: 4cc681ae41e0400c99cf6e2844c2f48d
+              name: '{#DN} configuration check'
+              type: ZABBIX_ACTIVE
+              key: 'virtualmin.domain.check[{#DN}]'
+              delay: 2h
+              trends: '0'
+              value_type: TEXT
+              tags:
+                - tag: Application
+                  value: 'Virtualmin Domains'
+              trigger_prototypes:
+                - uuid: 759e9fc14613496381da098eb106905e
+                  expression: 'last(/Futur-Tech App Virtualmin/virtualmin.domain.check[{#DN}])<>"All features OK" and last(/Futur-Tech App Virtualmin/virtualmin.domain.check[{#DN}])<>"All features are good"'
+                  name: 'Virtualmin domain {#DN} configuration check failed'
+                  opdata: 'Check result: {ITEM.LASTVALUE1}'
+                  priority: HIGH
+            - uuid: 98357c224b6b4f489164d17b37c023c1
+              name: '{#DN} configuration: Password storage'
+              type: DEPENDENT
+              key: 'virtualmin.domain.info.password_storage[{#DN}]'
+              delay: '0'
+              trends: '0'
+              value_type: TEXT
+              preprocessing:
+                - type: JSONPATH
+                  parameters:
+                    - '$.[0].[''DETAILS''].[''Password storage'']'
+              master_item:
+                key: 'virtualmin.domain.info[{#DN}]'
+              tags:
+                - tag: Application
+                  value: 'Virtualmin Domains'
+              trigger_prototypes:
+                - uuid: 2b796d09ce464f348d83d35dd6bb09a8
+                  expression: 'last(/Futur-Tech App Virtualmin/virtualmin.domain.info.password_storage[{#DN}])="Plain text"'
+                  name: 'Virtualmin domain {#DN} configuration is storing password in plain text'
+                  opdata: 'Password storage: {ITEM.LASTVALUE1}'
+                  priority: AVERAGE
+                  description: |
+                    Read more: 
+                    https://archive.virtualmin.com/node/27213
+                    https://forum.virtualmin.com/t/switching-from-plain-text-to-hashed-passwords-on-production-server/109383/2
+            - uuid: 220694b3f10b47c4a8ed520820fe74d8
+              name: '{#DN} configuration: PHP version'
+              type: DEPENDENT
+              key: 'virtualmin.domain.info.php_version[{#DN}]'
+              delay: '0'
+              trends: '0'
+              value_type: TEXT
+              preprocessing:
+                - type: JSONPATH
+                  parameters:
+                    - '$.[0].[''DETAILS''].[''PHP version'']'
+              master_item:
+                key: 'virtualmin.domain.info[{#DN}]'
+              tags:
+                - tag: Application
+                  value: 'Virtualmin Domains'
+              trigger_prototypes:
+                - uuid: 43262569e8274cd28ec0ad8f531b8cb0
+                  expression: |
+                    change(/Futur-Tech App Virtualmin/virtualmin.domain.info.php_version[{#DN}])=1
+                    and length(last(/Futur-Tech App Virtualmin/virtualmin.domain.info.php_version[{#DN}],#2))>0
+                    and length(last(/Futur-Tech App Virtualmin/virtualmin.domain.info.php_version[{#DN}]))>0
+                  name: 'Virtualmin domain {#DN} PHP version was changed'
+                  opdata: 'Current version: PHP {ITEM.VALUE2}'
+                  priority: WARNING
+                  description: |
+                    If this is not expected, it could be due to a PHP package update.
+                    This trigger will close automatically in 24h.
+                  manual_close: 'YES'
+            - uuid: e1ad40cd047b40e18d881e29e218fdbd
+              name: '{#DN} configuration: SSL cert expiry'
+              type: DEPENDENT
+              key: 'virtualmin.domain.info.ssl_expiry[{#DN}]'
+              delay: '0'
+              units: unixtime
+              preprocessing:
+                - type: JSONPATH
+                  parameters:
+                    - '$.[0].[''DETAILS''].[''SSL cert expiry time'']'
+              master_item:
+                key: 'virtualmin.domain.info[{#DN}]'
+              tags:
+                - tag: Application
+                  value: 'Virtualmin Domains'
+              trigger_prototypes:
+                - uuid: 8f459f9334474ab2bf247a08aca1f7b5
+                  expression: 'now()>last(/Futur-Tech App Virtualmin/virtualmin.domain.info.ssl_expiry[{#DN}])'
+                  name: 'Virtualmin domain {#DN} SSL certificat expired'
+                  opdata: 'Check result: {ITEM.LASTVALUE1}'
+                  priority: HIGH
+            - uuid: b39ea62fd92b49338446c87658cab8c9
+              name: '{#DN} configuration: URL'
+              type: DEPENDENT
+              key: 'virtualmin.domain.info.url[{#DN}]'
+              delay: '0'
+              trends: '0'
+              value_type: TEXT
+              preprocessing:
+                - type: JSONPATH
+                  parameters:
+                    - '$.[0].[''DETAILS''].[''URL'']'
+              master_item:
+                key: 'virtualmin.domain.info[{#DN}]'
+              tags:
+                - tag: Application
+                  value: 'Virtualmin Domains'
+            - uuid: a364d8c471f04bda994d7834e6932766
+              name: '{#DN} configuration'
+              type: ZABBIX_ACTIVE
+              key: 'virtualmin.domain.info[{#DN}]'
+              delay: 4h
+              trends: '0'
+              value_type: TEXT
+              preprocessing:
+                - type: DISCARD_UNCHANGED_HEARTBEAT
+                  parameters:
+                    - 1d
+              tags:
+                - tag: Application
+                  value: 'Virtualmin Domains'
+          lld_macro_paths:
+            - lld_macro: '{#DN}'
+              path: '$.[''domain'']'
+      tags:
+        - tag: Futur-Tech
+      macros:
+        - macro: '{$APACHE.PROCESS_NAME}'
+          value: apache2
+          description: 'The process name of the Apache web server for Debian'
+        - macro: '{$VIRTUALMIN.BACKUP.AGE.ERROR:"full"}'
+          value: 10d
+        - macro: '{$VIRTUALMIN.BACKUP.AGE.ERROR:"incremental"}'
+          value: 3d
