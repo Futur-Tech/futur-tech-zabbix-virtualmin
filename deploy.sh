@@ -37,7 +37,13 @@ echo "
   SETUP VIRTUALMIN
 ------------------------------------------"
 
-[ -e "/etc/ssl/pfsense-acme/letsencrypt.all.pem" ] && run_cmd_log webmin set-config --option keyfile --value /etc/ssl/pfsense-acme/letsencrypt.all.pem
+# Define the path to the Let's Encrypt SSL certificate
+letsencrypt="/etc/ssl/pfsense-acme/letsencrypt.all.pem"
+
+if [ -e "$letsencrypt" ]; then
+  run_cmd_log ln -sf "$letsencrypt" /etc/webmin/miniserv.pem
+  run_cmd_log webmin set-config --option keyfile --value /etc/webmin/miniserv.pem
+fi
 
 echo "
   SETUP SUDOERS FILE
