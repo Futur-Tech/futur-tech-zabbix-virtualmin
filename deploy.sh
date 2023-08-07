@@ -41,8 +41,8 @@ echo "
 letsencrypt="/etc/ssl/pfsense-acme/letsencrypt.all.pem"
 
 if [ -e "$letsencrypt" ]; then
-  run_cmd_log webmin set-config --option keyfile --value /etc/ssl/pfsense-acme/letsencrypt.all.pem
-  run_cmd_log webmin set-config --option certfile
+  run_cmd_log_noexit webmin set-config --option keyfile --value /etc/ssl/pfsense-acme/letsencrypt.all.pem
+  run_cmd_log_noexit webmin set-config --option certfile
 fi
 
 echo "
