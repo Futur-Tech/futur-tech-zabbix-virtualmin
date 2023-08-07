@@ -34,6 +34,12 @@ $S_DIR/ft-util/ft_util_file-deploy "$S_DIR/bin/" "${bin_dir}"
 $S_DIR/ft-util/ft_util_file-deploy "$S_DIR/etc.zabbix/${app_name}.conf" "${ZBX_CONF_AGENT_D}/${app_name}.conf"
 
 echo "
+  SETUP VIRTUALMIN
+------------------------------------------"
+
+[ -e "/etc/ssl/pfsense-acme/letsencrypt.all.pem" ] && run_cmd_log webmin set-config --option keyfile --value /etc/ssl/pfsense-acme/letsencrypt.all.pem
+
+echo "
   SETUP SUDOERS FILE
 ------------------------------------------"
 
