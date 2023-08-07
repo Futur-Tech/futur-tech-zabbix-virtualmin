@@ -1,6 +1,6 @@
 zabbix_export:
   version: '6.0'
-  date: '2023-08-03T19:04:12Z'
+  date: '2023-08-07T11:25:24Z'
   groups:
     - uuid: 7f27dc73981940769811e7fae4a26772
       name: Templates/Futur-Tech/Applications
@@ -11,7 +11,7 @@ zabbix_export:
       description: |
         https://github.com/Futur-Tech/futur-tech-zabbix-virtualmin
         
-        "Apache by Zabbix agent" need to be updated manually to use Zabbix agent active  items only.
+        "Apache by Zabbix agent" need to be updated manually to use Zabbix agent active items only.
       templates:
         - name: 'Apache by Zabbix agent'
       groups:
@@ -66,25 +66,9 @@ zabbix_export:
               preprocessing:
                 - type: JSONPATH
                   parameters:
-                    - '$.[''DETAILS''].[''Ended'']'
-                - type: STR_REPLACE
-                  parameters:
-                    - /
-                    - ' '
-                - type: JAVASCRIPT
-                  parameters:
-                    - |
-                      var split = value.split(' ');
-                      if (split[1].length === 3) {
-                          MONTHS_LIST = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
-                          month_index = ('0' + (MONTHS_LIST.indexOf(split[1]) + 1)).slice(-2);
-                      } else {
-                          month_index = split[1]
-                      }
-                      ISOdate = split[2] + '-' + month_index + '-' + split[0] + 'T' + split[3];
-                      var ts = new Date(ISOdate).valueOf() / 1000;
-                      tz = new Date().getTimezoneOffset() * 60;
-                      return ts + tz;
+                    - '$.[''DETAILS''].[''Ended_epoch'']'
+                  error_handler: CUSTOM_VALUE
+                  error_handler_params: '0'
               master_item:
                 key: 'virtualmin.bkp.last[{#ID}]'
               tags:
