@@ -62,6 +62,7 @@ if [ -e "$letsencrypt" ]; then
     run_webmin_cmd_log webmin set-config --option keyfile --value /etc/ssl/pfsense-acme/letsencrypt.all.pem
     run_webmin_cmd_log webmin set-config --option certfile --value \"\"
 fi
+
 echo "
   SETUP SUDOERS FILE
 ------------------------------------------"
