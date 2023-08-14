@@ -2,6 +2,7 @@
 
 source "$(dirname "$0")/ft-util/ft_util_inc_func"
 source "$(dirname "$0")/ft-util/ft_util_inc_var"
+source "$(dirname "$0")/ft-util/ft_util_sudoersd"
 source "$(dirname "$0")/ft-util/ft_util_usrmgmt"
 
 app_name="futur-tech-zabbix-virtualmin"
@@ -29,7 +30,7 @@ $S_DIR_PATH/ft-util/ft_util_pkg -u -i ${required_pkg_arr[@]} || exit 1
 mkdir_if_missing "${bin_dir}"
 $S_DIR/ft-util/ft_util_file-deploy "$S_DIR/bin/" "${bin_dir}"
 $S_DIR/ft-util/ft_util_file-deploy "$S_DIR/etc.zabbix/${app_name}.conf" "${ZBX_CONF_AGENT_D}/${app_name}.conf"
-enforce_security exec "$bin_dir"
+enforce_security exec "$bin_dir" zabbix
 
 echo "
   SETUP VIRTUALMIN
