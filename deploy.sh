@@ -33,36 +33,6 @@ $S_DIR/ft-util/ft_util_file-deploy "$S_DIR/etc.zabbix/${app_name}.conf" "${ZBX_C
 enforce_security exec "$bin_dir" zabbix
 
 echo "
-  SETUP VIRTUALMIN
-------------------------------------------"
-
-# Run webmin command
-function run_webmin_cmd_log() {
-  $@ 2>&1 | $S_LOG -s debug -d "$S_NAME|[${*}]" -i
-  local exit_code=${PIPESTATUS[0]}
-  if [ $exit_code -eq 0 ] || [ $exit_code -eq 1 ]; then
-    # Exit Codes:
-    # 0 on successfully replacing a config variable
-    # 1 on successfully adding a new config variable (the specified option did
-    # not already exist in the file, and was added)
-    # >1 on error
-
-    $S_LOG -d "$S_NAME" "[${*}] successful"
-  else
-    $S_LOG -s crit -d "$S_NAME" "[${*}] failed with EXIT_CODE=${exit_code}"
-    exit $exit_code
-  fi
-}
-
-# Use pfSense ACME generated certificate (or self signed if not deployed yet)
-letsencrypt="/etc/ssl/pfsense-acme/letsencrypt.all.pem"
-
-if [ -e "$letsencrypt" ]; then
-  run_webmin_cmd_log webmin set-config --option keyfile --value /etc/ssl/pfsense-acme/letsencrypt.all.pem
-  run_webmin_cmd_log webmin set-config --option certfile --value \"\"
-fi
-
-echo "
   SETUP SUDOERS FILE
 ------------------------------------------"
 
