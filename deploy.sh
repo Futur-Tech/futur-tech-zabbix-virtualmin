@@ -40,10 +40,10 @@ bak_if_exist "/etc/sudoers.d/${app_name}"
 sudoersd_reset_file $app_name zabbix
 sudoersd_addto_file $app_name zabbix "${src_dir}/deploy-update.sh"
 sudoersd_addto_file $app_name zabbix "${bin_dir}/bkp-discovery.sh"
-sudoersd_addto_file $app_name zabbix "${bin_dir}/bkp-last.sh *"
+sudoersd_addto_file $app_name zabbix "${bin_dir}/bkp-last.sh ^[-a-zA-Z0-9_.]+$"
 sudoersd_addto_file $app_name zabbix "${bin_dir}/domain-discovery.sh"
-sudoersd_addto_file $app_name zabbix "${bin_dir}/domain-check.sh *"
-sudoersd_addto_file $app_name zabbix "${bin_dir}/domain-info.sh *"
+sudoersd_addto_file $app_name zabbix "${bin_dir}/domain-check.sh ^[-a-zA-Z0-9_.]+$"
+sudoersd_addto_file $app_name zabbix "${bin_dir}/domain-info.sh ^[-a-zA-Z0-9_.]+$"
 show_bak_diff_rm "/etc/sudoers.d/${app_name}"
 
 echo "
